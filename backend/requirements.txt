@@ -1,0 +1,7 @@
+# Superseded: pyproject.toml is the source of truth for this uv project.
+# These floors are older than what is actually installed and tested
+# (google-adk 2.11.0); use `uv sync --group dev` instead of pip install.
+fastapi>=0.141.1
+uvicorn[standard]>=0.54.0
+google-adk>=2.11.0
+python-dotenv>=1.2.4

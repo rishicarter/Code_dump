@@ -1,0 +1,112 @@
+:root {
+  --paper: #f3f5f2; --panel: #ffffff; --ink: #1c2321; --muted: #66726e; --line: #d9dfdb;
+  --accent: #0f6b5c; --accent-ink: #ffffff;
+  --add: #1f7a46; --add-bg: #e5f4ea; --del: #b3362e; --del-bg: #fbe9e7; --mod: #8a5a00; --mod-bg: #fdf1d8;
+  --code-bg: #14201d; --code-ink: #d6e5df; --code-dim: #5f7a72; --code-glow: #1d4a3c;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --paper: #0f1513; --panel: #182120; --ink: #e6ede9; --muted: #8fa09a; --line: #2a3733;
+    --accent: #3fb79f; --accent-ink: #08201b; --add-bg: #14301f; --del-bg: #3a1a17; --mod-bg: #3a2c0c;
+    --add: #6fd39a; --del: #ff8b80; --mod: #f0c260; }
+}
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 15px/1.5 "IBM Plex Sans", system-ui, sans-serif; }
+button, input, textarea { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.app { display: grid; grid-template-columns: minmax(340px, 1fr) minmax(320px, 1fr); gap: 16px; height: 100%; padding: 16px; }
+@media (max-width: 800px) { .app { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; } }
+
+.pane { display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--panel); }
+.pane > header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.pane h2 { margin: 0; font: 700 18px "Bricolage Grotesque", sans-serif; }
+
+button { border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+button:disabled { opacity: .45; cursor: default; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+button.ghost { color: var(--muted); }
+
+/* chat */
+.messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.empty { margin: auto 0; color: var(--muted); }
+
+/* Quick actions stay pinned above the transcript for the whole session, so a
+   one-word request is always one click away (mirrors the sketch's top button). */
+.quick-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.chip { border-radius: 999px; color: var(--ink); background: var(--paper); }
+.chip:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+/* Turn-based transcript: the user sits on the right, the agent replies on the left. */
+.msg { display: flex; flex-direction: column; max-width: 88%; }
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.assistant { align-self: flex-start; align-items: flex-start; }
+.who { font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px 4px; }
+.bubble { min-width: 0; }
+.bubble p { margin: 0; padding: 9px 13px; border-radius: 14px; overflow-wrap: anywhere; }
+.msg.user .bubble p { background: var(--accent); color: var(--accent-ink); border-bottom-right-radius: 5px; }
+.msg.assistant .bubble p { background: var(--paper); border: 1px solid var(--line); border-bottom-left-radius: 5px; }
+.typing { color: var(--muted); font-style: italic; }
+
+.badge { font: 500 11px "IBM Plex Sans", sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--mod); background: var(--mod-bg); border-radius: 999px; padding: 3px 9px; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+
+.patch { margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.patch.applied { border-color: var(--add); } .patch.discarded { opacity: .6; }
+.op { display: flex; gap: 10px; padding: 6px 12px; font: 400 13px "IBM Plex Mono", monospace; word-break: break-all; }
+.op b { width: 12px; } .op.add { background: var(--add-bg); color: var(--add); }
+.op.remove { background: var(--del-bg); color: var(--del); } .op.replace { background: var(--mod-bg); color: var(--mod); }
+.patch .actions, .patch .state { padding: 8px 12px; display: flex; gap: 8px; }
+.patch .state { color: var(--muted); font-size: 13px; }
+
+/* flex-wrap lets the warning take the full first row via flex-basis: 100%. */
+.composer { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; padding: 12px; border-top: 1px solid var(--line); }
+.composer textarea { flex: 1; min-height: 38px; max-height: 98px; resize: none; overflow-y: auto; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); font: inherit; line-height: 1.5; }
+.composer textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.composer button { height: 38px; }
+
+/* yaml */
+.pane.yaml { background: var(--code-bg); border-color: var(--code-bg); }
+.yaml > header { border-color: #2a3a35; } .yaml h2 { color: var(--code-ink); }
+.yaml .ghost { color: var(--code-dim); border-color: #2a3a35; }
+
+/* The header is title, optional error card, then the Copy button pushed right. */
+.yaml > header { justify-content: flex-start; gap: 10px; }
+.yaml > header .ghost { margin-left: auto; }
+
+/* Gutter and textarea must share identical metrics or the numbers drift out of
+   row with the text. Only the gutter scrolls, and only when told to. */
+.yaml .body { display: flex; flex: 1; min-height: 0; }
+.yaml .gutter { flex: none; width: 58px; overflow: hidden; padding: 12px 0; text-align: right; user-select: none; }
+.yaml .gutter .no { display: block; font: 400 14px/1.7 "IBM Plex Mono", monospace; color: var(--code-dim); padding-right: 14px; }
+.yaml .gutter .no.changed { color: var(--accent); font-weight: 600; }
+.yaml .gutter .no.filler { color: transparent; }
+.yaml .yaml-input {
+  flex: 1; min-width: 0; resize: none; overflow: auto; border: 0; border-radius: 0;
+  padding: 12px 16px; background: transparent; color: var(--code-ink);
+  font: 400 14px/1.7 "IBM Plex Mono", monospace; white-space: pre; overflow-wrap: normal;
+}
+.yaml .yaml-input:focus { outline: none; }
+.yaml .yaml-input:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+
+/* Red card in the header. The detail is revealed by CSS alone, so there is no
+   timer to clean up and no dependency on a tooltip library. */
+.parse-error {
+  position: relative; cursor: help; user-select: none;
+  padding: 2px 9px; border: 1px solid var(--del); border-radius: 999px;
+  background: var(--del-bg); color: var(--del);
+  font: 500 11px "IBM Plex Sans", sans-serif; letter-spacing: .04em; text-transform: uppercase;
+}
+.parse-error-detail {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 5; width: max-content; max-width: 380px;
+  display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--del); background: var(--panel); color: var(--ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .28); text-transform: none; letter-spacing: 0;
+  opacity: 0; visibility: hidden; transition: opacity .12s ease;
+}
+.parse-error:hover .parse-error-detail, .parse-error:focus-visible .parse-error-detail { opacity: 1; visibility: visible; }
+.parse-error-message { font: 400 13px/1.45 "IBM Plex Sans", sans-serif; color: var(--del); }
+.parse-error-where { font: 400 12px "IBM Plex Sans", sans-serif; color: var(--muted); }
+.parse-error-line { font: 400 12px/1.5 "IBM Plex Mono", monospace; color: var(--ink); background: var(--paper); border-radius: 6px; padding: 4px 8px; white-space: pre-wrap; word-break: break-all; }
+.composer-warning { flex-basis: 100%; margin: 0; color: var(--del); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .parse-error-detail { transition: none; } }
